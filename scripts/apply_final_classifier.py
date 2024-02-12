@@ -60,32 +60,50 @@ def apply(run_name: str,
 
 
 if __name__ == '__main__':
-    # Run options
-    run_options_file = sys.argv[1]
-    with open(run_options_file) as json_file:
-        run_options = json.load(json_file) 
+    import argparse, toml
 
-    # Run name
-    run_name = run_options["RUN_NAME"]
-    
-    # Get the input variables 
-    input_file = run_options["INPUT_FILE"]
+    parser = argparse.ArgumentParser(
+        prog="MIBI-apply",
+        description="This takes an XGBoost classifier model and applies it on unlabelled cell data."
+    )
 
-    # The final model
-    input_model = run_options["INPUT_MODEL"]
+    parser.add_argument("--name", "-n", help="Run name used to label output files.", required=True)
+    parser.add_argument("--input", "-i", help="Preprocessed input data file from QuPath.", required=True)
+    parser.add_argument("--model", "-m", help="Path to final model file produced from training.", required=True)
+    parser.add_argument(
+        "--preprocess-scheme",
+        "-s",
+        help="The scheme to use to transform the input data.",
+        choices=["null", "logp1", "poly"], required=True
+    )
+    parser.add_argument(
+        "--options",
+        "-x",
+        help="Path to TOML file containing preprocessing scheme options.", required=True
+    )
+    parser.add_argument(
+        "--output-path", "-o", help="Path to directory to store output files.", required=True
+    )
+    parser.add_argument(
+        "--threshold", "-t", help="idk what this does yet"
+    )
 
-    # Get the output folder
-    output_file = run_options["OUTPUT_FILE"]
+    args = parser.parse_args()
 
-    # Preprocess
-    preprocess_scheme = run_options["PREPROCESS_SCHEME"]
-    preprocess_options = run_options["PREPROCESS_OPTIONS"]
+    run_name = args.name
+    input_file = args.input
+    input_model = args.model
+    preprocess_scheme = args.preprocess_scheme
+    threshold = args.threshold
 
-    # if a threshold has been defined, use it
-    try: 
-        threshold = run_options["THRESHOLD"]
-    except:
-        threshold = None
+    # load options toml
+    try:
+        preprocess_options = toml.load(args.options)["preprocess_options"]
+    except FileNotFoundError:
+        print(f"Options TOML file not found at {args.options}")
+        sys.exit(2)
+
+    output_file = os.path.join(args.output_path, f"{run_name}_applied_results.csv")
 
     apply(run_name, input_file, input_model, output_file, preprocess_scheme, preprocess_options, threshold)
 
