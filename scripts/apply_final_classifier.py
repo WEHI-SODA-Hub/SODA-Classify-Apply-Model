@@ -8,13 +8,19 @@ import pickle
 from preprocess.data_transformer import DataTransformer
 import os
 from typing import Dict
+import json
 
-def apply(input_file: str, 
-          input_model: str, 
-          output_file: str, 
-          preprocess_scheme: str, 
-          preprocess_options: Dict, 
-          threshold) -> None:
+
+def apply(
+    input_file: str,
+    input_model: str,
+    output_file: str,
+    preprocess_scheme: str,
+    preprocess_options: Dict,
+    decoder_file: str,
+    images_file: str,
+    threshold,
+) -> None:
     """
     main function to apply an XGBoost classifier model to unlabelled cell type data
 
@@ -24,6 +30,8 @@ def apply(input_file: str,
         output_file: Path to applied model results.
         preprocess_scheme: The scheme to use to transform the input data.
         preprocess_options: Dict containing preprocessing scheme options.
+        decoder_file: Path to JSON file decoder
+        images_file: Path to images and coordinate columns CSV file.
         threshold: not sure yet
 
     Raises:
@@ -36,57 +44,100 @@ def apply(input_file: str,
 
     # Read in the model
     print("INFO: Load the model")
-    model = pickle.load(open(input_model, 'rb'))
+    model = pickle.load(open(input_model, "rb"))
 
     # Preprocess
     print("INFO: Preprocessing")
     data_transformer = DataTransformer()
-    X = data_transformer.transform_data(X, 
-                                transform_scheme=preprocess_scheme, 
-                                args=preprocess_options)
+    X = data_transformer.transform_data(
+        X, transform_scheme=preprocess_scheme, args=preprocess_options
+    )
 
     # apply the model
     if threshold is None:
         print("INFO: Predicting the labels")
-        pd.DataFrame(model.predict(X)).to_csv(output_file)
+        y_pred = pd.DataFrame(model.predict(X))
         print("INFO: Finished")
     else:
         print("INFO: Predicting the labels using threshold")
         probs_df = pd.DataFrame(model.predict_proba(X))
-        labels = probs_df.iloc[:, 1] > threshold
-        labels = labels.astype(int)
-        labels.to_csv(output_file)
+        y_pred = probs_df.iloc[:, 1] > threshold
+        y_pred = y_pred.astype(int)
+        y_pred.to_csv(output_file)
         print("INFO: Finished")
 
+    print("INFO: Load the decoder")
+    try:
+        decoder = json.load(open(decoder_file, "r"))
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Could not find decoder file at {decoder_file}.")
 
-if __name__ == '__main__':
+    print("INFO: Load the images and coordinate columns CSV file")
+    try:
+        images_coordinates = pd.read_csv(images_file)
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            f"Could not find images and coordinate columns CSV at {images_file}."
+        )
+
+    print("INFO: Converting predicted to QuPath-compatible format")
+    final_labels = images_coordinates.copy()
+    final_labels.loc[:, "Prediction Level 1"] = y_pred.iloc[:, 0].astype("str").replace(decoder)
+    final_labels.to_csv(output_file)
+
+
+if __name__ == "__main__":
     import argparse, toml
 
     parser = argparse.ArgumentParser(
         prog="MIBI-apply",
-        description="This takes an XGBoost classifier model and applies it on unlabelled cell data."
+        description="This takes an XGBoost classifier model and applies it on unlabelled cell data.",
     )
 
-    parser.add_argument("--name", "-n", help="Run name used to label output files.", required=True)
-    parser.add_argument("--input", "-i", help="Preprocessed input data file from QuPath.", required=True)
-    parser.add_argument("--model", "-m", help="Path to final model file produced from training.", required=True)
+    parser.add_argument(
+        "--name", "-n", help="Run name used to label output files.", required=True
+    )
+    parser.add_argument(
+        "--input", "-i", help="Preprocessed input data file from QuPath.", required=True
+    )
+    parser.add_argument(
+        "--model",
+        "-m",
+        help="Path to final model file produced from training.",
+        required=True,
+    )
     parser.add_argument(
         "--preprocess-scheme",
         "-s",
         help="The scheme to use to transform the input data.",
-        choices=["null", "logp1", "poly"], required=True
+        choices=["null", "logp1", "poly"],
+        required=True,
     )
     parser.add_argument(
         "--options",
         "-x",
-        help="Path to TOML file containing preprocessing scheme options.", required=True
+        help="Path to TOML file containing preprocessing scheme options.",
+        required=True,
     )
     parser.add_argument(
-        "--output-path", "-o", help="Path to directory to store output files.", required=True
+        "--decoder",
+        "-d",
+        help="Path to decoder JSON file. Used to match predicted values to their cell names",
+        required=True,
     )
     parser.add_argument(
-        "--threshold", "-t", help="idk what this does yet"
+        "--images-file",
+        "-f",
+        help="Path to images and coordinate columns CSV file. Used when converting predicted results back to QuPath-compatible format.",
+        required=True,
     )
+    parser.add_argument(
+        "--output-path",
+        "-o",
+        help="Path to directory to store output files.",
+        required=True,
+    )
+    parser.add_argument("--threshold", "-t", help="idk what this does yet")
 
     args = parser.parse_args()
 
@@ -94,6 +145,8 @@ if __name__ == '__main__':
     input_file = args.input
     input_model = args.model
     preprocess_scheme = args.preprocess_scheme
+    decoder = args.decoder
+    images_file = args.images_file
     threshold = args.threshold
 
     # load options toml
@@ -105,5 +158,13 @@ if __name__ == '__main__':
 
     output_file = os.path.join(args.output_path, f"{run_name}_applied_results.csv")
 
-    apply(input_file, input_model, output_file, preprocess_scheme, preprocess_options, threshold)
-
+    apply(
+        input_file,
+        input_model,
+        output_file,
+        preprocess_scheme,
+        preprocess_options,
+        decoder,
+        images_file,
+        threshold,
+    )
