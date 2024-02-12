@@ -1,0 +1,4 @@
+**__pycache__
+.nextflow.log*
+**.out
+.nextflow
