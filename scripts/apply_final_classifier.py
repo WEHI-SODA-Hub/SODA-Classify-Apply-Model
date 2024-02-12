@@ -1,34 +1,34 @@
 """
 Author: YOKOTE Kenta
-Aim: To run the XGBoost classifier on labelled cell data on SLURM
-
-    Takes 8 inputs from STDIN:
-        1. run_name: name of the run. The outputs will be saved to a folder
-                     which has this as the name
-        2. input_folder: 
-        3. input_file: name of the file located in input_folder
-        4. labels_file: name of the file containing labels 
-        5. output_folder: 
-        6. classifier_scheme: the type of classifier to use
-        7. model_options: 
 """
 
 import sys
-import json
 import pandas as pd
 import pickle
-from classifier_initilaliser import ClassifierInitialiser
 from preprocess.data_transformer import DataTransformer
 import os
 from typing import Dict
 
-def apply(run_name: str, 
-          input_file: str, 
+def apply(input_file: str, 
           input_model: str, 
           output_file: str, 
           preprocess_scheme: str, 
           preprocess_options: Dict, 
-          threshold):
+          threshold) -> None:
+    """
+    main function to apply an XGBoost classifier model to unlabelled cell type data
+
+    Args:
+        input_file: Preprocessed input data file path from QuPath.
+        input_model: Path to final model file produced from training.
+        output_file: Path to applied model results.
+        preprocess_scheme: The scheme to use to transform the input data.
+        preprocess_options: Dict containing preprocessing scheme options.
+        threshold: not sure yet
+
+    Raises:
+        FileNotFoundError if any of input_file, input_model are not found.
+    """
 
     # read the data
     print("INFO: Reading the data")
@@ -105,5 +105,5 @@ if __name__ == '__main__':
 
     output_file = os.path.join(args.output_path, f"{run_name}_applied_results.csv")
 
-    apply(run_name, input_file, input_model, output_file, preprocess_scheme, preprocess_options, threshold)
+    apply(input_file, input_model, output_file, preprocess_scheme, preprocess_options, threshold)
 
