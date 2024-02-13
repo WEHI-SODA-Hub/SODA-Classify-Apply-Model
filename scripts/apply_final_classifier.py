@@ -10,7 +10,6 @@ import os
 from typing import Dict
 import json
 
-
 def apply(
     input_file: str,
     input_model: str,
@@ -54,37 +53,38 @@ def apply(
     )
 
     # apply the model
-    if threshold is None:
-        print("INFO: Predicting the labels")
-        y_pred = pd.DataFrame(model.predict(X))
-        print("INFO: Finished")
-    else:
+    if threshold:
         print("INFO: Predicting the labels using threshold")
         probs_df = pd.DataFrame(model.predict_proba(X))
         y_pred = probs_df.iloc[:, 1] > threshold
         y_pred = y_pred.astype(int)
         y_pred.to_csv(output_file)
         print("INFO: Finished")
+    else:
+        print("INFO: Predicting the labels")
+        y_pred = pd.DataFrame(model.predict(X))
 
-    print("INFO: Load the decoder")
-    try:
-        decoder = json.load(open(decoder_file, "r"))
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Could not find decoder file at {decoder_file}.")
+        print("INFO: Load the decoder")
+        try:
+            decoder = json.load(open(decoder_file, "r"))
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Could not find decoder file at {decoder_file}.")
 
-    print("INFO: Load the images and coordinate columns CSV file")
-    try:
-        images_coordinates = pd.read_csv(images_file)
-    except FileNotFoundError:
-        raise FileNotFoundError(
-            f"Could not find images and coordinate columns CSV at {images_file}."
-        )
+        print("INFO: Load the images and coordinate columns CSV file")
+        try:
+            images_coordinates = pd.read_csv(images_file)
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                f"Could not find images and coordinate columns CSV at {images_file}."
+            )
 
-    print("INFO: Converting predicted to QuPath-compatible format")
-    final_labels = images_coordinates.copy()
-    final_labels.loc[:, "Prediction Level 1"] = y_pred.iloc[:, 0].astype("str").replace(decoder)
-    final_labels.to_csv(output_file)
+        print("INFO: Converting predicted to QuPath-compatible format")
+        final_labels = images_coordinates.copy()
+        print(y_pred.iloc[:, 0])
+        final_labels.loc[:, "Prediction Level 1"] = y_pred.iloc[:, 0].astype("str").replace(decoder)
+        final_labels.to_csv(output_file)
 
+        print("INFO: Finished")
 
 if __name__ == "__main__":
     import argparse, toml
@@ -137,7 +137,7 @@ if __name__ == "__main__":
         help="Path to directory to store output files.",
         required=True,
     )
-    parser.add_argument("--threshold", "-t", help="idk what this does yet")
+    parser.add_argument("--threshold", "-t", help="idk what this does yet", type=float)
 
     args = parser.parse_args()
 
