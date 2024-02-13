@@ -20,16 +20,17 @@ process APPLY {
 	path("*_applied_results.csv", type: "file")
 	
 	script:
+	def options = options_ch.name != "NO_FILE" ? "--options ${options_ch}" : ''
 	"""
 	python3 ${projectDir}/scripts/apply_final_classifier.py \\
 		--input ${input_ch} \\
 		--name ${params.run_name} \\
 		--model ${model_ch} \\
 		--preprocess-scheme ${params.preprocess_scheme} \\
-		--options ${options_ch} \\
 		--decoder ${decoder_ch} \\
 		--images-file ${images_ch} \\
 		--output-path . \\
-		--threshold ${params.threshold}
+		--threshold ${params.threshold} \\
+		${options}
 	"""
 }

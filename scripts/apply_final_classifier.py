@@ -115,8 +115,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--options",
         "-x",
-        help="Path to TOML file containing preprocessing scheme options.",
-        required=True,
+        help="Path to TOML file containing preprocessing scheme options."
     )
     parser.add_argument(
         "--decoder",
@@ -138,6 +137,12 @@ if __name__ == "__main__":
     )
     parser.add_argument("--threshold", "-t", help="idk what this does yet", type=float, nargs='?', const=None)
 
+    args, unknown_args = parser.parse_known_args()
+
+    if args.preprocess_scheme == "poly":
+        if not args.options:
+            parser.error("--options is required when --preprocess-scheme is poly.")
+
     args = parser.parse_args()
 
     run_name = args.name
@@ -149,11 +154,13 @@ if __name__ == "__main__":
     threshold = args.threshold
 
     # load options toml
-    try:
-        preprocess_options = toml.load(args.options)["preprocess_options"]
-    except FileNotFoundError:
-        print(f"Options TOML file not found at {args.options}")
-        sys.exit(2)
+    preprocess_options = args.options
+    if preprocess_options:
+        try:
+            preprocess_options = toml.load(preprocess_options)["preprocess_options"]
+        except FileNotFoundError:
+            print(f"Options TOML file not found at {preprocess_options}")
+            sys.exit(2)
 
     output_file = os.path.join(args.output_path, f"{run_name}_applied_results.csv")
 

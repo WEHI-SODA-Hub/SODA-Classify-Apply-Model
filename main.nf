@@ -58,12 +58,12 @@ def helpMessage() {
   --run_name 		   Run name used to label output files.
   --model              Final model saved from training.
   --preprocess_scheme  The scheme used to preprocess the model before application.
-  --options_toml       TOML file containing preprocessing scheme and model classifier options.
   --decoder_file       JSON file containing the decoder for the predicted cell types.
   --output_path        Path to directory to store output files.
 
   Optional Arguments:
 
+  --options_toml       TOML file containing preprocessing scheme and model classifier options. Only needed if --preprocess_scheme=poly. 
   --threshold	       Not sure what this does yet
 	
 """.stripIndent()
@@ -79,10 +79,10 @@ workflow {
 		 params.run_name == "" ||
          params.model == "" ||
          params.preprocess_scheme == "" ||
-         params.options_file == "" ||
          params.decoder_file == "" ||
          params.images_list == "" ||
-         params.output_path == ""){   
+         params.output_path == "" ||
+		 (params.preprocess_scheme == "poly" && params.options_file == "${projectDir}/assets/NO_FILE")){
 		
 		// Invoke the help function above and exit
 		helpMessage()
