@@ -80,7 +80,6 @@ def apply(
 
         print("INFO: Converting predicted to QuPath-compatible format")
         final_labels = images_coordinates.copy()
-        print(y_pred.iloc[:, 0])
         final_labels.loc[:, "Prediction Level 1"] = y_pred.iloc[:, 0].astype("str").replace(decoder)
         final_labels.to_csv(output_file)
 
