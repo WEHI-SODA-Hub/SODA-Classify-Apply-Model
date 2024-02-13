@@ -3,38 +3,17 @@
 /// To use DSL-2 will need to include this
 nextflow.enable.dsl=2
 
-// =================================================================
-// main.nf is the pipeline script for a nextflow pipeline
-// Should contain the following sections:
-	// Import subworkflows
-	// Log info function
-	// Help function 
-	// Main workflow structure
-	// Some tests to check input data, essential arguments
+// Importing apply process
+include { APPLY } from './modules/apply'
 
-// Examples are included for each section. Remove them and replace
-// with project-specific code. For more information on nextflow see:
-// https://www.nextflow.io/docs/latest/index.html and the SIH Nextflow
-// upskilling repo @ INSERT REPO PATH 
-//
-// ===================================================================
-
-// Import subworkflows to be run in the workflow
-// Each of these is a separate .nf script saved in modules/
-// Add as many of these as you need. The example below will
-// look for the process called process in modules/moduleName.nf
-// Include { process } from './modules/moduleName'
-include { processOne } from './modules/process1'
-include { processTwo } from './modules/process2'
-
-/// Print a header for your pipeline 
+/// Print a header
 log.info """\
 
 =======================================================================================
-Name of the pipeline - nf 
+MIBI apply model pipeline - nf 
 =======================================================================================
 
-Created by the Sydney Informatics Hub, University of Sydney
+Created by the Claire Marceaux, WEHI
 
 Find documentation and more info @ GITHUB REPO DOT COM
 
@@ -45,62 +24,84 @@ Log issues @ GITHUB REPO DOT COM
 =======================================================================================
 Workflow run parameters 
 =======================================================================================
-input       : ${params.input}
-outDir      : ${params.outDir}
-workDir     : ${workflow.workDir}
+input            : ${params.input}
+run_name         : ${params.run_name}
+model            : ${params.model}
+preprocess_scheme: ${params.preprocess_scheme}
+options_file     : ${params.options_file}
+decoder_file     : ${params.decoder_file}
+images_list      : ${params.images_list}
+output_path      : ${params.output_path}
+threshold        : ${params.threshold}
+workDir          : ${workflow.workDir}
 =======================================================================================
 
 """
 
-/// Help function 
-// This is an example of how to set out the help function that 
-// will be run if run command is incorrect (if set in workflow) 
-// or missing/  
-
+/// Help function
 def helpMessage() {
     log.info"""
-  Usage:  nextflow run main.nf --input <samples.tsv> 
+  Usage:  nextflow run main.nf 
+        --input <preprocessed-data.csv>
+		--run_name <name>
+		--model <bayes-cv-model.sav>
+		--preprocess_scheme <scheme>
+		--options_toml <preprocess-options.toml>
+		--decoder_file <decoder.json>
+		--images_list <images.csv>
+		--output_path <output>
+		--threshold <0.xxx>
 
   Required Arguments:
 
-  --input	Specify full path and name of sample
-		input file (tab separated).
+  --input			   Preprocessed input data file from QuPath.
+  --run_name 		   Run name used to label output files.
+  --model              Final model saved from training.
+  --preprocess_scheme  The scheme used to preprocess the model before application.
+  --options_toml       TOML file containing preprocessing scheme and model classifier options.
+  --decoder_file       JSON file containing the decoder for the predicted cell types.
+  --output_path        Path to directory to store output files.
 
   Optional Arguments:
 
-  --outDir	Specify path to output directory. 
+  --threshold	       Not sure what this does yet
 	
 """.stripIndent()
 }
 
-/// Main workflow structure. Include some input/runtime tests here.
-// Make sure to comment what each step does for readability. 
 
 workflow {
-// Show help message if --help is run or if any required params are not 
-// provided at runtime
+	// Show help message if --help is run or if any required params are not 
+	// provided at runtime
 
-if ( params.help || params.input == false ){   
-// Invoke the help function above and exit
-	helpMessage()
-	exit 1
-	// consider adding some extra contigencies here.
-	// could validate path of all input files in list?
-	// could validate indexes for input files exist?
-	// could validate indexes for reference exist?
+	if ( params.help || 
+	     params.input == "" ||
+		 params.run_name == "" ||
+         params.model == "" ||
+         params.preprocess_scheme == "" ||
+         params.options_file == "" ||
+         params.decoder_file == "" ||
+         params.images_list == "" ||
+         params.output_path == ""){   
+		
+		// Invoke the help function above and exit
+		helpMessage()
+		exit 1
 
-// if none of the above are a problem, then run the workflow
-} else {
-	
-	// Define input channels 
-	input = Channel.fromPath("${params.input}")
+	// if none of the above are a problem, then run the workflow
+	} else {
+		
+		// Define input channels 
+		input_ch = Channel.fromPath("${params.input}")
+		model_ch = Channel.fromPath("${params.model}")
+		options_ch = Channel.fromPath("${params.options_file}")
+		decoder_ch = Channel.fromPath("${params.decoder_file}")
+		images_ch = Channel.fromPath("${params.images_list}")
 
-	// Run process 1 example
-	processOne(params.input)
-	
-	// process 2 example 
-	processTwo(processOne.out.File)
-}}
+		// Run process 1 example
+		output_ch = APPLY(input_ch, model_ch, options_ch, decoder_ch, images_ch)
+	}
+}
 
 workflow.onComplete {
 summary = """
