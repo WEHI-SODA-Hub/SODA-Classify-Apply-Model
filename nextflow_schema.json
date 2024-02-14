@@ -17,24 +17,24 @@
                     "exists": true,
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
-                    "description": "Preprocessed input data file from QuPath.",
+                    "description": "Preprocessed input data file from QuPath. E.g., /home/users/allstaff/<username>/batch1-apply_preprocessed_input_data.csv",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "run_name": {
                     "type": "string",
-                    "description": "Run name used to label output files.",
+                    "description": "Run name used to label output files. E.g., batch1-apply.",
                     "fa_icon": "fas fa-align-justify"
                 },
                 "model": {
                     "type": "string",
-                    "description": "Final model saved from training.",
+                    "description": "Final model saved from training. E.g., /vast/scratch/users/<username>/mibi-batch1-workspace/batch1-training-logp1-SMOTE-1/final_model.sav",
                     "fa_icon": "fas fa-file-alt",
                     "format": "file-path",
                     "pattern": "^\\S+\\.sav$"
                 },
                 "preprocess_scheme": {
                     "type": "string",
-                    "description": "The scheme used to preprocess the model before application.",
+                    "description": "The scheme used to preprocess the model before application. E.g., logp1",
                     "fa_icon": "fas fa-align-justify",
                     "enum": [
                         "null",
@@ -44,7 +44,7 @@
                 },
                 "decoder_file": {
                     "type": "string",
-                    "description": "JSON file containing the decoder for the predicted cell types.",
+                    "description": "JSON file containing the decoder for the predicted cell types. E.g., /home/users/allstaff/<username>/batch1-apply_decoder.json",
                     "fa_icon": "fas fa-file-alt",
                     "format": "file-path",
                     "mimetype": "application/json",
@@ -52,7 +52,7 @@
                 },
                 "images_list": {
                     "type": "string",
-                    "description": "Path to CSV list of images produced during preprocessing.",
+                    "description": "Path to CSV list of images produced during preprocessing. E.g., /home/users/allstaff/<username>/batch1-apply_images.csv",
                     "fa_icon": "fas fa-file-csv",
                     "format": "file-path",
                     "mimetype": "text/csv",
@@ -60,7 +60,7 @@
                 },
                 "output_path": {
                     "type": "string",
-                    "description": "Path to directory to store output files.",
+                    "description": "Path to directory to store output files. E.g., /home/users/allstaff/<username>/batch1-apply-results",
                     "fa_icon": "fas fa-folder",
                     "format": "directory-path"
                 },
@@ -68,7 +68,7 @@
                     "type": "string",
                     "default": "${projectDir}/assets/NO_FILE",
                     "fa_icon": "fas fa-file-alt",
-                    "description": "TOML file containing preprocessing scheme and model classifier options. Only needed if --preprocess_scheme=poly.",
+                    "description": "TOML file containing preprocessing scheme and model classifier options. Only needed if --preprocess_scheme=poly. E.g., /home/users/allstaff/<username>/options.toml",
                     "format": "file-path"
                 },
                 "threshold": {
