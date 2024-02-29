@@ -56,7 +56,7 @@ def helpMessage() {
 
   --input			   Preprocessed input data file from QuPath.
   --run_name 		   Run name used to label output files.
-  --model              Final model saved from training.
+  --model              Final model saved from training. E.g., ~/myrun/bayes_cv_model.sav
   --preprocess_scheme  The scheme used to preprocess the model before application.
   --decoder_file       JSON file containing the decoder for the predicted cell types.
   --output_path        Path to directory to store output files.

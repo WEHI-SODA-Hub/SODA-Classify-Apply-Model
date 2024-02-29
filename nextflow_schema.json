@@ -27,7 +27,7 @@
                 },
                 "model": {
                     "type": "string",
-                    "description": "Final model saved from training. E.g., /vast/scratch/users/<username>/mibi-batch1-workspace/batch1-training-logp1-SMOTE-1/final_model.sav",
+                    "description": "Final model saved from training. E.g., /vast/scratch/users/$USER/mibi-batch1-workspace/batch1-training-logp1-SMOTE-1/bayes_cv_model.sav",
                     "fa_icon": "fas fa-file-alt",
                     "format": "file-path",
                     "pattern": "^\\S+\\.sav$"
