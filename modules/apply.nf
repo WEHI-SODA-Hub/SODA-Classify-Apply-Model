@@ -12,11 +12,12 @@ process APPLY {
 
 	input:
 	path(apply_script_ch)
-	path(input_ch)
+	path("input.csv")
 	path(model_ch)
 	path(options_ch)
 	path(decoder_ch)
 	path(images_ch)
+	path("validation.csv")
 	val(threshold_ch)
 
 	output:
@@ -27,12 +28,13 @@ process APPLY {
 	def threshold = threshold_ch != "" ? "--threshold ${threshold_ch}" : ''
 	"""
 	python3 ${apply_script_ch} \\
-		--input ${input_ch} \\
+		--input input.csv \\
 		--name ${params.run_name} \\
 		--model ${model_ch} \\
 		--preprocess-scheme ${params.preprocess_scheme} \\
 		--decoder ${decoder_ch} \\
 		--images-file ${images_ch} \\
+		--validation-file validation.csv \\
 		--output-path . \\
 		${threshold} ${options}
 	"""

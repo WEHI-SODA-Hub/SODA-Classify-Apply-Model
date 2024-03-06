@@ -58,6 +58,14 @@
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$"
                 },
+                "validation_file": {
+                    "type": "string",
+                    "description": "Path to preprocessed input data used to train the XGBoost model. This is used to validate the input data. E.g., /home/users/allstaff/<username>/training_preprocessed_input_data.csv",
+                    "fa_icon": "fas fa-file-csv",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.csv$"
+                },
                 "output_path": {
                     "type": "string",
                     "description": "Path to directory to store output files. E.g., /home/users/allstaff/<username>/batch1-apply-results",

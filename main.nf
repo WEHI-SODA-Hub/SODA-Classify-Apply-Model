@@ -49,6 +49,7 @@ def helpMessage() {
 		--options_toml <preprocess-options.toml>
 		--decoder_file <decoder.json>
 		--images_list <images.csv>
+		--validation_file <val.csv>
 		--output_path <output>
 		--threshold <0.xxx>
 
@@ -59,6 +60,8 @@ def helpMessage() {
   --model              Final model saved from training. E.g., ~/myrun/bayes_cv_model.sav
   --preprocess_scheme  The scheme used to preprocess the model before application.
   --decoder_file       JSON file containing the decoder for the predicted cell types.
+  --images_list        Path to images and coordinate columns CSV file. 
+  --validation_file    Path to preprocessed input data used to train the XGBoost model.
   --output_path        Path to directory to store output files.
 
   Optional Arguments:
@@ -81,6 +84,7 @@ workflow {
          params.preprocess_scheme == "" ||
          params.decoder_file == "" ||
          params.images_list == "" ||
+		 params.validation_file == "" ||
          params.output_path == "" ||
 		 (params.preprocess_scheme == "poly" && params.options_file == "${projectDir}/assets/NO_FILE")){
 		
@@ -98,10 +102,11 @@ workflow {
 		options_ch = Channel.fromPath("${params.options_file}")
 		decoder_ch = Channel.fromPath("${params.decoder_file}")
 		images_ch = Channel.fromPath("${params.images_list}")
+		validation_ch = Channel.fromPath("${params.validation_file}")
 		threshold_ch = Channel.from("${params.threshold}")
 
 		// Run process 1 example
-		output_ch = APPLY(script_ch, input_ch, model_ch, options_ch, decoder_ch, images_ch, threshold_ch)
+		output_ch = APPLY(script_ch, input_ch, model_ch, options_ch, decoder_ch, images_ch, validation_ch, threshold_ch)
 	}
 }
 
