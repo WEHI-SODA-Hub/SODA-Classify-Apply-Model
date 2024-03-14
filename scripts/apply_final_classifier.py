@@ -62,8 +62,7 @@ def apply(
             cols_in_val = cols_val[~cols_val.isin(cols_in)]
             raise RuntimeError("It looks like the columns in the input file don't match the validation file!\n\n" + 
                             tabulate.tabulate({
-                                "Columns in Input File, but not in Validation File": cols_in_input, 
-                                "Columns in Validation File, but not in Input File": cols_in_val
+                                "Columns missing from input file": cols_in_val
                             }, headers="keys")
             )
 
