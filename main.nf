@@ -15,11 +15,11 @@ MIBI apply model pipeline - nf
 
 Created by the Claire Marceaux, WEHI
 
-Find documentation and more info @ GITHUB REPO DOT COM
+Find documentation and more info @ https://github.com/BioimageAnalysisCoreWEHI/MIBI-apply-model
 
 Cite this pipeline @ INSERT DOI
 
-Log issues @ GITHUB REPO DOT COM
+Log issues @ https://github.com/BioimageAnalysisCoreWEHI/MIBI-apply-model/issues
 
 =======================================================================================
 Workflow run parameters 
@@ -79,14 +79,14 @@ workflow {
 
 	if ( params.help || 
 	     params.input == "" ||
-		 params.run_name == "" ||
-         params.model == "" ||
-         params.preprocess_scheme == "" ||
-         params.decoder_file == "" ||
-         params.images_list == "" ||
-		 params.validation_file == "" ||
-         params.output_path == "" ||
-		 (params.preprocess_scheme == "poly" && params.options_file == "${projectDir}/assets/NO_FILE")){
+             params.run_name == "" ||
+             params.model == "" ||
+             params.preprocess_scheme == "" ||
+             params.decoder_file == "" ||
+             params.images_list == "" ||
+             params.validation_file == "" ||
+             params.output_path == "" ||
+             (params.preprocess_scheme == "poly" && params.options_file == "${projectDir}/assets/NO_FILE")) {
 		
 		// Invoke the help function above and exit
 		helpMessage()
