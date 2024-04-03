@@ -112,8 +112,7 @@
                     "type": "boolean",
                     "description": "Display version and exit.",
                     "fa_icon": "fas fa-question-circle",
-                    "hidden": true,
-                    "default": 0.1
+                    "hidden": true
                 }
             }
         }
@@ -125,5 +124,13 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "memory": {
+            "type": "string",
+            "default": "64 GB",
+            "hidden": true,
+            "description": "How much memory needed to apply the model."
+        }
+    }
 }
