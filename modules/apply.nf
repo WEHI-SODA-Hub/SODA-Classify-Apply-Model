@@ -9,6 +9,7 @@ process APPLY {
 	conda "${projectDir}/envs/environment.yml"
 	publishDir "${params.output_path}", mode: 'copy'
 	label "apply"
+	time "1h"
 
 	input:
 	path(apply_script_ch)
