@@ -38,7 +38,8 @@
                     "enum": [
                         "null",
                         "logp1",
-                        "poly"
+                        "poly",
+                        "percentile"
                     ]
                 },
                 "decoder_file": {
